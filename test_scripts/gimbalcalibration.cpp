@@ -30,5 +30,6 @@ void loop() {
         }
 
     pitchServo.writeMicroseconds(1500);
+    
     delay(1000);
 }
