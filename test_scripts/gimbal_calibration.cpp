@@ -1,35 +1,56 @@
 #include <Arduino.h>
 #include <Servo.h>
 
-Servo pitchServo;
-Servo yawServo;
+Servo pitchServo; // pin 10
+Servo yawServo;   // pin 9
+
+// can be tuned
+int yawCenter = 1700;  
+int yawRange  = 150;    // ~30° each side
+
+int pitchCenter = 1500;
+int pitchRange  = 200;
 
 void setup() {
-    pitchServo.attach(9);
-    yawServo.attach(10);
+    pitchServo.attach(10);
+    yawServo.attach(9);
 
-    pitchServo.writeMicroseconds(1500); 
-    yawServo.writeMicroseconds(1500);
+    pitchServo.writeMicroseconds(pitchCenter);
+    yawServo.writeMicroseconds(yawCenter);
 
     delay(2000);
-
 }
 
 void loop() {
-// start slightly to the left, and increment to the right
-    for (int pos = 1350; pos < 1650; pos += 5) {
-        pitchServo.writeMicroseconds(pos);
 
-    delay(15);
+    // yaw servo
+    for (int pos = yawCenter - yawRange; pos <= yawCenter + yawRange; pos += 5) {
+        yawServo.writeMicroseconds(pos);
+        delay(10);
     }
 
-        for (int pos = 1650; pos >= 1350; pos -= 5) {
-            pitchServo.writeMicroseconds(pos);
-        
-            delay(15);
-        }
+    for (int pos = yawCenter + yawRange; pos >= yawCenter - yawRange; pos -= 5) {
+        yawServo.writeMicroseconds(pos);
+        delay(10);
+    }
 
-    pitchServo.writeMicroseconds(1500);
-    
-    delay(1000);
+    // return back to the center
+    yawServo.writeMicroseconds(yawCenter);
+
+    delay(500);
+
+    // pitch
+    for (int pos = pitchCenter - pitchRange; pos <= pitchCenter + pitchRange; pos += 5) {
+        pitchServo.writeMicroseconds(pos);
+        delay(10);
+    }
+
+    for (int pos = pitchCenter + pitchRange; pos >= pitchCenter - pitchRange; pos -= 5) {
+        pitchServo.writeMicroseconds(pos);
+        delay(10);
+    }
+
+    pitchServo.writeMicroseconds(pitchCenter);
+
+    delay(500);
 }
