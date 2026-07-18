@@ -11,11 +11,11 @@ int16_t ax, ay, az; // accelerometer values
 int16_t gx, gy, gz; // gyroscope values
 int16_t gyroXOffset = 0, gyroYOffset = 0, gyroZOffset = 0; // account for sensor drift
 
-unsigned long previousTime = millis();
+unsigned long previousTime = 0;
 
 // PD controller variables
-float kp = 0.5; // proportional gain for pitch
-float kd = 5.0; // derivative gain for pitch
+float kp = 2.0; // proportional gain for pitch
+float kd = 0.4; // derivative gain for pitch
 float alpha = 0.98; // filter coefficient
 
 float pitchEstimate = 0; 
@@ -46,6 +46,11 @@ void setup() {
 
     pitchServo.attach(10); 
     rollServo.attach(9);
+
+    pitchServo.writeMicroseconds(1500);
+    rollServo.writeMicroseconds(1500);
+
+    previousTime = millis(); // return how much time the setup took
 }
 
 void calibrateGyro() {
@@ -104,7 +109,7 @@ void loop() {
     Serial.print("Pitch: "); Serial.print(pitch, 2); Serial.print(" degrees, ");
     Serial.print("Roll: "); Serial.print(roll, 2); Serial.println("degrees");
 
-// 131 counts = 1 deg/s    
+// 131 counts = 1 deg/s     
     float gyroPitchRate = gx / 131.0;
     float gyroRollRate = gy / 131.0;
 
@@ -134,7 +139,20 @@ void loop() {
     pitchServoPosition = constrain(pitchServoPosition, 1300, 1700);
     rollServoPosition  = constrain(rollServoPosition, 1300, 1700);
 
+    Serial.print("Pitch Servo: ");
+    Serial.print(pitchServoPosition);
+
+    Serial.print("      Roll Servo: ");
+    Serial.print(rollServoPosition);
+
     pitchServo.writeMicroseconds(pitchServoPosition);
     rollServo.writeMicroseconds(rollServoPosition);
 
+    if (abs(pitchOutput) < 0.2) {
+        pitchOutput = 0;
+    }
+
+    if (abs(rollOutput) < 0.2) {
+        rollOutput = 0;
+    }
 }
